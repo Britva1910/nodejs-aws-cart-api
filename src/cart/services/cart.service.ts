@@ -2,14 +2,23 @@ import { Injectable } from '@nestjs/common';
 
 import { v4 } from 'uuid';
 
-import { Cart } from '../models';
+import { Cart, CartStatuses } from '../models';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm/repository/Repository';
+import { CartEntity, CartStatus } from '../entity/cart.entity';
 
 @Injectable()
 export class CartService {
-  private userCarts: Record<string, Cart> = {};
+  constructor(
+    @InjectRepository(CartEntity)
+    private cartRepository: Repository<CartEntity>,
+  ) {}
 
-  findByUserId(userId: string): Cart {
-    return this.userCarts[ userId ];
+  async findByUserId(userId: string): Promise<CartEntity> {
+    return await this.cartRepository.findOne({
+      where: { status: CartStatus.OPEN, user: { id: userId } },
+      relations: { items: { product: true } },
+    });
   }
 
   createByUserId(userId: string) {
@@ -17,39 +26,48 @@ export class CartService {
     const userCart = {
       id,
       items: [],
+      created_at: '',
+      status: CartStatuses.OPEN,
+      updated_at: '',
+      user_id: '',
     };
-
-    this.userCarts[ userId ] = userCart;
 
     return userCart;
   }
+  /* 
+  async findOrCreateByUserId(userId: string): Promise<Cart> {
+    let cart = await this.cartRepository.findOne({
+      where: { userId, status: CartStatus.OPEN },
+      relations: ['items'],
+    });
 
-  findOrCreateByUserId(userId: string): Cart {
-    const userCart = this.findByUserId(userId);
-
-    if (userCart) {
-      return userCart;
+    if (!cart) {
+      cart = this.cartRepository.create({
+        userId,
+        status: CartStatus.OPEN,
+        items: [],
+      });
+      await this.cartRepository.save(cart);
     }
 
-    return this.createByUserId(userId);
-  }
+    return cart;
+  } */
 
-  updateByUserId(userId: string, { items }: Cart): Cart {
-    const { id, ...rest } = this.findOrCreateByUserId(userId);
+  updateByUserId(userId: string, { items }: Cart) {
+    /*  const { id, ...rest } = this.findOrCreateByUserId(userId);
 
     const updatedCart = {
       id,
       ...rest,
-      items: [ ...items ],
-    }
+      items: [...items],
+    };
 
-    this.userCarts[ userId ] = { ...updatedCart };
+    this.userCarts[userId] = { ...updatedCart };
 
-    return { ...updatedCart };
+    return { ...updatedCart }; */
   }
 
   removeByUserId(userId): void {
-    this.userCarts[ userId ] = null;
+    /*  this.userCarts[userId] = null; */
   }
-
 }
