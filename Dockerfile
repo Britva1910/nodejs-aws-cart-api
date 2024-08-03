@@ -27,8 +27,7 @@ COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 
+EXPOSE 4000
+
 # Устанавливаем команду запуска контейнера
 CMD ["node", "dist/main.js"]
-
-# Оптимизация размера образа
-EXPOSE 3000
