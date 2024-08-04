@@ -1,0 +1,23 @@
+# Ignore the directory with installed dependencies
+node_modules
+
+# Ignore build output files (e.g., after TypeScript compilation)
+dist
+
+# Ignore log files (not needed for the Docker build process)
+*.log
+
+# Ignore TypeScript source files (compile to JavaScript before adding to Docker image)
+*.ts
+
+# Ignore source map files (not needed in the final image)
+*.map
+
+# Ignore the Dockerfile (used only for building, not needed in the build context)
+Dockerfile
+
+# Ignore the .dockerignore file (not needed in the final Docker image)
+.dockerignore
+
+# Ignore the environment variables file (may contain sensitive information)
+.env
